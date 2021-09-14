@@ -19,6 +19,7 @@ def getArguments():
     return parser.parse_args()
 
 
+
 class MACController:
     "a class for controlling the actions on MAC addresses"
     def __init__(self, url, session):
@@ -47,12 +48,13 @@ class Framework:
         self.password = password
         self.url = url
     
-    def _intro(self):
+    def _intro(self, ssid):
         censoredPassword = re.sub(".","*", self.password)
         print("*"*50)
         print(f"username: {self.username}")
         print(f"password: {censoredPassword}")
         print(f"gateway: {self.url}")
+        print(f"SSID: {ssid}")
         print("*"*50)    
 
     def _authenticate(self):
@@ -67,15 +69,25 @@ class Framework:
         if "index.html" not in requestToAuthenticate.text:
             print('username or password is incorrect')
             exit(1)
-        
         return session
+
+    def _getSSID(self,session):
+        requestToGetConfiguration = session.get(f'{self.url}/wlcfg.html')
+        soup = BeautifulSoup(requestToGetConfiguration.text, 'html.parser');
+        scriptTagContent = soup.find_all('script')[2].contents[0]
+        ssidVariable = re.search("var ssid = '\w+'", scriptTagContent)[0]
+        ssidValue = re.search("'\w+'",ssidVariable)[0] 
+        ssidWithoutQoutes = ssidValue.split("'")[1]
+        return ssidWithoutQoutes
+
 
     def init(self):
         session = self._authenticate()
-        self._intro()
+        ssid = self._getSSID(session)
+        self._intro(ssid)
         macController = MACController(self.url, session)
         while True:
-            command = input(f"{Fore.GREEN}{Back.BLACK}{self.url}>{Fore.RESET}{Back.RESET} ")
+            command = input(f"{Fore.GREEN}{Back.BLACK}{ssid}>{Fore.RESET}{Back.RESET} ")
             if command.split(" ")[0] == "add":                
                 macController.add(command.split(" ")[1])
                 # sleep 1 seconds because the internet will get disconnected and connected again
