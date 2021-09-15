@@ -97,6 +97,7 @@ class Framework:
         self._getStationList(session)
         while True:
             command = input(f"{Fore.GREEN}{Back.BLACK}{ssid}>{Fore.RESET}{Back.RESET} ")
+            command = command.strip()
             if command.split(" ")[0] == "add":                
                 macController.add(command.split(" ")[1])
                 # sleep 1 seconds because the internet will get disconnected and connected again
@@ -115,10 +116,13 @@ class Framework:
                 print(f"\t{Back.GREEN}list{Back.RESET}")
                 print(f"\t{Back.GREEN}help{Back.RESET}")
                 print(f"\t{Back.GREEN}stations{Back.RESET}")
+                print(f"\t{Back.GREEN}exit{Back.RESET}")
             elif command == "stations":
                 stations = self._getStationList(session)
                 for station in stations:
                     print(station)
+            elif command == "exit":
+                exit(0)
             else:
                 print("this command is not recongized")
 
