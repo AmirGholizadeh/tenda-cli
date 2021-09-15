@@ -80,12 +80,21 @@ class Framework:
         ssidWithoutQoutes = ssidValue.split("'")[1]
         return ssidWithoutQoutes
 
+    def _getStationList(self, session):
+        requestToGetStationList = session.get(f"{self.url}/wlstationlist.cmd")
+        soup = BeautifulSoup(requestToGetStationList.text, 'html.parser')
+        macAddresses = re.findall("\w\w:\w\w:\w\w:\w\w:\w\w:\w\w", f"{soup.contents[0]}")
+        stations = []
+        for station in macAddresses:
+            stations.append(station)
+        return stations
 
     def init(self):
         session = self._authenticate()
         ssid = self._getSSID(session)
         self._intro(ssid)
         macController = MACController(self.url, session)
+        self._getStationList(session)
         while True:
             command = input(f"{Fore.GREEN}{Back.BLACK}{ssid}>{Fore.RESET}{Back.RESET} ")
             if command.split(" ")[0] == "add":                
@@ -105,6 +114,11 @@ class Framework:
                 print(f"\t{Back.GREEN}remove <MAC>{Back.RESET}")
                 print(f"\t{Back.GREEN}list{Back.RESET}")
                 print(f"\t{Back.GREEN}help{Back.RESET}")
+                print(f"\t{Back.GREEN}stations{Back.RESET}")
+            elif command == "stations":
+                stations = self._getStationList(session)
+                for station in stations:
+                    print(station)
             else:
                 print("this command is not recongized")
 
