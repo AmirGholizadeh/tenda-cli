@@ -48,6 +48,11 @@ class Wireless:
         ssidWithoutQoutes = ssidValue.split("'")[1]
         return ssidWithoutQoutes
 
+    def setSSID(self, session, ssid):
+        if requestToSetSSID.status_code == 200:
+            return True
+        return False
+
     def getStationList(self, session):
         requestToGetStationList = session.get(f"{self.url}/wlstationlist.cmd")
         soup = BeautifulSoup(requestToGetStationList.text, 'html.parser')
@@ -56,6 +61,9 @@ class Wireless:
         for station in macAddresses:
             stations.append(station)
         return stations
+
+    def hide(self, session):
+
 
 class MACController:
     "a class for controlling the actions on MAC addresses"
@@ -112,20 +120,25 @@ class Framework:
                 macController.remove(command.split(" ")[1])
                 sleep(3)
                 session = wireless.authenticate()
+            elif command.split(" ")[0] == "set":
+                if command.split(" ")[1] == "ssid":
+                    if wireless.setSSID(session, command.split(" ")[2]):
+                        ssid = command.split(" ")[2]
             elif command == "list":
                 macController.list()
-            elif command == "help":
-                print("available options are:")
-                print(f"\t{Back.GREEN}add <MAC>{Back.RESET}")
-                print(f"\t{Back.GREEN}remove <MAC>{Back.RESET}")
-                print(f"\t{Back.GREEN}list{Back.RESET}")
-                print(f"\t{Back.GREEN}help{Back.RESET}")
-                print(f"\t{Back.GREEN}stations{Back.RESET}")
-                print(f"\t{Back.GREEN}exit{Back.RESET}")
             elif command == "stations":
                 stations = wireless.getStationList(session)
                 for station in stations:
                     print(station)
+            elif command == "help":
+                print("available options are:")
+                print(f"\t{Back.GREEN}add <MAC>{Back.RESET}")
+                print(f"\t{Back.GREEN}remove <MAC>{Back.RESET}")
+                print(f"\t{Back.GREEN}set ssid <SSID>{Back.RESET}")
+                print(f"\t{Back.GREEN}list{Back.RESET}")
+                print(f"\t{Back.GREEN}stations{Back.RESET}")
+                print(f"\t{Back.GREEN}help{Back.RESET}")
+                print(f"\t{Back.GREEN}exit{Back.RESET}")
             elif command == "exit":
                 exit(0)
             else:
