@@ -48,6 +48,13 @@ class Framework:
                 stations = wireless.getStationList(session)
                 for station in stations:
                     print(station)
+            elif command == "hide":
+                wireless.hide(session)
+            elif command == "unhide":
+                wireless.unhide(session)
+            elif command == "visibility":
+                visibility = wireless.visibility(session)
+                print(visibility)
             elif command == "help":
                 print("available options are:")
                 print(f"\t{Back.GREEN}add <MAC>{Back.RESET}")
@@ -55,6 +62,9 @@ class Framework:
                 print(f"\t{Back.GREEN}set ssid <SSID>{Back.RESET}")
                 print(f"\t{Back.GREEN}list{Back.RESET}")
                 print(f"\t{Back.GREEN}stations{Back.RESET}")
+                print(f"\t{Back.GREEN}hide{Back.RESET}")
+                print(f"\t{Back.GREEN}unhide{Back.RESET}")
+                print(f"\t{Back.GREEN}visibility{Back.RESET}")
                 print(f"\t{Back.GREEN}help{Back.RESET}")
                 print(f"\t{Back.GREEN}exit{Back.RESET}")
             elif command == "exit":

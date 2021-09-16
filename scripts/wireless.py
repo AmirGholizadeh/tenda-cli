@@ -48,4 +48,22 @@ class Wireless:
         return stations
 
     def hide(self, session):
-        pass
+        requestToHideAP = session.get(f'{self.url}/wlcfg.wl?wlHide=1&sessionKey=361939628')
+        if requestToHideAP.status_code == 200:
+            return True
+        return False
+    def unhide(self, session):
+        requestToUnhideAP = session.get(f'{self.url}/wlcfg.wl?wlHide=0&sessionKey=361939628')
+        if requestToUnhideAP.status_code == 200:
+            return True
+        return False
+    def visibility(self, session):
+        requestToGetVisibility = session.get(f'{self.url}/wlcfg.html')
+        soup = BeautifulSoup(requestToGetVisibility.text, "html.parser")
+        findValue = re.search("var hide = '[01]'", f"{soup}")
+        valueItself = findValue[0].split("'")[1]
+        if valueItself == "0":
+            return "visible"
+        else:
+            return "hidden"
+    
