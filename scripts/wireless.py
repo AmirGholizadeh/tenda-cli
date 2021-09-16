@@ -33,10 +33,10 @@ class Wireless:
         return ssidWithoutQoutes
 
     def setSSID(self, session, ssid):
-        pass
-        #if requestToSetSSID.status_code == 200:
-         #   return True
-        #return False
+        requestToSetSSID = session.get(f'{self.url}/wlcfg.wl?wlSsid={ssid}&sessionKey=361939628')
+        if requestToSetSSID.status_code == 200:
+            return True
+        return False
 
     def getStationList(self, session):
         requestToGetStationList = session.get(f"{self.url}/wlstationlist.cmd")
