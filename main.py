@@ -19,6 +19,43 @@ def getArguments():
     return parser.parse_args()
 
 
+class Wireless:
+    def __init__(self, username, password, url):
+        self.url = url
+        self.username = username
+        self.password = password
+
+    def authenticate(self):
+        session = requests.session()
+        
+        usernameHash = hashlib.md5(self.username.encode()).hexdigest()
+        passwordHash = hashlib.md5(self.password.encode()).hexdigest()
+        
+        data = f"username={usernameHash}&password={passwordHash}&sessionKey=0.22283898278971725"
+
+        requestToAuthenticate = session.post(f"{self.url}/login.cgi", data=data)
+        if "index.html" not in requestToAuthenticate.text:
+            print('username or password is incorrect')
+            exit(1)
+        return session
+
+    def getSSID(self,session):
+        requestToGetConfiguration = session.get(f'{self.url}/wlcfg.html')
+        soup = BeautifulSoup(requestToGetConfiguration.text, 'html.parser');
+        scriptTagContent = soup.find_all('script')[2].contents[0]
+        ssidVariable = re.search("var ssid = '\w+'", scriptTagContent)[0]
+        ssidValue = re.search("'\w+'",ssidVariable)[0] 
+        ssidWithoutQoutes = ssidValue.split("'")[1]
+        return ssidWithoutQoutes
+
+    def getStationList(self, session):
+        requestToGetStationList = session.get(f"{self.url}/wlstationlist.cmd")
+        soup = BeautifulSoup(requestToGetStationList.text, 'html.parser')
+        macAddresses = re.findall("\w\w:\w\w:\w\w:\w\w:\w\w:\w\w", f"{soup.contents[0]}")
+        stations = []
+        for station in macAddresses:
+            stations.append(station)
+        return stations
 
 class MACController:
     "a class for controlling the actions on MAC addresses"
@@ -57,44 +94,12 @@ class Framework:
         print(f"SSID: {ssid}")
         print("*"*50)    
 
-    def _authenticate(self):
-        session = requests.session()
-        
-        usernameHash = hashlib.md5(self.username.encode()).hexdigest()
-        passwordHash = hashlib.md5(self.password.encode()).hexdigest()
-        
-        data = f"username={usernameHash}&password={passwordHash}&sessionKey=0.22283898278971725"
-
-        requestToAuthenticate = session.post(f"{self.url}/login.cgi", data=data)
-        if "index.html" not in requestToAuthenticate.text:
-            print('username or password is incorrect')
-            exit(1)
-        return session
-
-    def _getSSID(self,session):
-        requestToGetConfiguration = session.get(f'{self.url}/wlcfg.html')
-        soup = BeautifulSoup(requestToGetConfiguration.text, 'html.parser');
-        scriptTagContent = soup.find_all('script')[2].contents[0]
-        ssidVariable = re.search("var ssid = '\w+'", scriptTagContent)[0]
-        ssidValue = re.search("'\w+'",ssidVariable)[0] 
-        ssidWithoutQoutes = ssidValue.split("'")[1]
-        return ssidWithoutQoutes
-
-    def _getStationList(self, session):
-        requestToGetStationList = session.get(f"{self.url}/wlstationlist.cmd")
-        soup = BeautifulSoup(requestToGetStationList.text, 'html.parser')
-        macAddresses = re.findall("\w\w:\w\w:\w\w:\w\w:\w\w:\w\w", f"{soup.contents[0]}")
-        stations = []
-        for station in macAddresses:
-            stations.append(station)
-        return stations
-
     def init(self):
-        session = self._authenticate()
-        ssid = self._getSSID(session)
+        wireless = Wireless(self.username, self.password, self.url)
+        session = wireless.authenticate()
+        ssid = wireless.getSSID(session)
         self._intro(ssid)
         macController = MACController(self.url, session)
-        self._getStationList(session)
         while True:
             command = input(f"{Fore.GREEN}{Back.BLACK}{ssid}>{Fore.RESET}{Back.RESET} ")
             command = command.strip()
@@ -102,11 +107,11 @@ class Framework:
                 macController.add(command.split(" ")[1])
                 # sleep 1 seconds because the internet will get disconnected and connected again
                 sleep(3)
-                session = self._authenticate()
+                session = wireless.authenticate()
             elif command.split(" ")[0] == "remove":
                 macController.remove(command.split(" ")[1])
                 sleep(3)
-                session = self._authenticate()
+                session = wireless.authenticate()
             elif command == "list":
                 macController.list()
             elif command == "help":
@@ -118,7 +123,7 @@ class Framework:
                 print(f"\t{Back.GREEN}stations{Back.RESET}")
                 print(f"\t{Back.GREEN}exit{Back.RESET}")
             elif command == "stations":
-                stations = self._getStationList(session)
+                stations = wireless.getStationList(session)
                 for station in stations:
                     print(station)
             elif command == "exit":
