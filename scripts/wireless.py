@@ -66,4 +66,16 @@ class Wireless:
             return "visible"
         else:
             return "hidden"
-    
+    def setPassword(self, session, currentPassword, newPassword):
+        requestToGetCurrentPassword = session.get(f'{self.url}/wlsecurity.html')
+        soup = BeautifulSoup(requestToGetCurrentPassword.text, "html.parser")
+        findPassword = re.search("var wpaPskKey = '\w+'", f"{soup}")
+        passwordItself = findPassword[0].split("'")[1]
+        if currentPassword != passwordItself:
+            print("the password you have entered is incorrect, please try again.")
+            return False
+        if len(newPassword) < 8:
+            print('the length of the password must be greater than 8.')
+            return False
+        requestToSetPassword = session.get(f'{self.url}/wlsecurity.wl?wlWpaPsk={newPassword}&sessionKey=102574560')
+        return True

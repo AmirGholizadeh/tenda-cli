@@ -39,9 +39,12 @@ class Framework:
                 sleep(1)
                 session = wireless.authenticate()
             elif command.split(" ")[0] == "set":
-                if command.split(" ")[1] == "ssid":
-                    if wireless.setSSID(session, command.split(" ")[2]):
-                        ssid = command.split(" ")[2]
+                splittedCommand = command.split(" ")
+                if splittedCommand[1] == "ssid":
+                    if wireless.setSSID(session, splittedCommand[2]):
+                        ssid = splittedCommand[2]
+                if splittedCommand[1] == "password":
+                    wireless.setPassword(session, splittedCommand[2], splittedCommand[3])
             elif command == "list":
                 macController.list()
             elif command == "stations":
@@ -60,6 +63,7 @@ class Framework:
                 print(f"\t{Back.GREEN}add <MAC>{Back.RESET}")
                 print(f"\t{Back.GREEN}remove <MAC>{Back.RESET}")
                 print(f"\t{Back.GREEN}set ssid <SSID>{Back.RESET}")
+                print(f"\t{Back.GREEN}set password <CURRENT_PASSWORD> <NEW_PASSWORD>{Back.RESET}")
                 print(f"\t{Back.GREEN}list{Back.RESET}")
                 print(f"\t{Back.GREEN}stations{Back.RESET}")
                 print(f"\t{Back.GREEN}hide{Back.RESET}")
