@@ -17,6 +17,13 @@ class MACController:
     def list(self):
         requestToGetMACs = self.session.get(f'{self.url}/wlmacflt.cmd?action=view')
         soup = BeautifulSoup(requestToGetMACs.text, "html.parser")
-        for mac in soup.find_all(attrs={"name":"rml"}):
-            print(mac['value'])
+        macElements = soup.find_all(attrs={"name":"rml"})
+        macValues = []
+        for macElement in macElements:
+            macValues.append(macElement['value'])
+        return macValues
+    def clear(self):
+        macs = self.list()
+        for mac in macs:
+            self.remove(mac)  
     

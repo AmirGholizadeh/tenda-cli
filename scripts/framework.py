@@ -46,7 +46,11 @@ class Framework:
                 if splittedCommand[1] == "password":
                     wireless.setPassword(session, splittedCommand[2], splittedCommand[3])
             elif command == "list":
-                macController.list()
+                macs = macController.list()
+                for mac in macs:
+                    print(mac)
+            elif command == "clear":
+                macController.clear()
             elif command == "stations":
                 stations = wireless.getStationList(session)
                 for station in stations:
@@ -65,6 +69,7 @@ class Framework:
                 print(f"\t{Back.GREEN}set ssid <SSID>{Back.RESET}")
                 print(f"\t{Back.GREEN}set password <CURRENT_PASSWORD> <NEW_PASSWORD>{Back.RESET}")
                 print(f"\t{Back.GREEN}list{Back.RESET}")
+                print(f"\t{Back.GREEN}clear{Back.RESET}")
                 print(f"\t{Back.GREEN}stations{Back.RESET}")
                 print(f"\t{Back.GREEN}hide{Back.RESET}")
                 print(f"\t{Back.GREEN}unhide{Back.RESET}")
