@@ -1,4 +1,6 @@
 from bs4 import BeautifulSoup
+import requests
+import json
 class MACController:
     "a class for controlling the actions on MAC addresses"
     def __init__(self, url, session):
@@ -20,10 +22,18 @@ class MACController:
         macElements = soup.find_all(attrs={"name":"rml"})
         macValues = []
         for macElement in macElements:
-            macValues.append(macElement['value'])
+            vendor = self._vendor(macElement['value'])
+            macValues.append(f"{vendor} {macElement['value']}")
         return macValues
     def clear(self):
         macs = self.list()
         for mac in macs:
-            self.remove(mac)  
-    
+            self.remove(mac)
+    def _vendor(self, mac):
+        OUI = mac.split(':')[:3]
+        OUI = ':'.join(OUI)
+        requestToGetVendorName = requests.get(f'http://www.macvendorlookup.com/api/v2/{OUI}')
+        if(requestToGetVendorName.status_code == 200):
+            vendorName = json.loads(requestToGetVendorName.text)[0]['company']
+            return vendorName
+        return "unknown"    
