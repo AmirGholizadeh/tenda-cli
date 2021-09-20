@@ -37,3 +37,17 @@ class MACController:
             vendorName = json.loads(requestToGetVendorName.text)[0]['company']
             return vendorName
         return "unknown"    
+    def filter(self,kind):
+        if(kind == "whitelist"):
+            requestToFilterByWhitelist = self.session.get(f'{self.url}/wlmacflt.cmd?action=save&wlFltMacMode=allow&sessionKey=1656871422')
+        elif(kind == "blacklist"):
+            requestToFilterByBlacklist = self.session.get(f'{self.url}/wlmacflt.cmd?action=save&wlFltMacMode=deny&sessionKey=1656871422')
+        elif(kind == "disable"):
+            requestToDisableFiltering = self.session.get(f'{self.url}/wlmacflt.cmd?action=save&wlFltMacMode=disabled&sessionKey=1656871422')
+        else:
+            print("available lists are:")
+            print("\twhitelist")    
+            print("\tblacklist")
+            print("\tdisable")
+            return False
+        return True

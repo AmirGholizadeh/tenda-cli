@@ -45,6 +45,8 @@ class Framework:
                         ssid = splittedCommand[2]
                 if splittedCommand[1] == "password":
                     wireless.setPassword(session, splittedCommand[2], splittedCommand[3])
+                if  splittedCommand[1] == "filter":
+                    macController.filter(splittedCommand[2])
             elif command == "list":
                 macs = macController.list()
                 for mac in macs:
@@ -68,6 +70,7 @@ class Framework:
                 print(f"\t{Back.GREEN}remove <MAC>{Back.RESET}")
                 print(f"\t{Back.GREEN}set ssid <SSID>{Back.RESET}")
                 print(f"\t{Back.GREEN}set password <CURRENT_PASSWORD> <NEW_PASSWORD>{Back.RESET}")
+                print(f"\t{Back.GREEN}set filter <OPTION>{Back.RESET}")
                 print(f"\t{Back.GREEN}list{Back.RESET}")
                 print(f"\t{Back.GREEN}clear{Back.RESET}")
                 print(f"\t{Back.GREEN}stations{Back.RESET}")
